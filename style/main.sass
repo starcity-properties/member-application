@@ -1,0 +1,34 @@
+@charset "UTF-8"
+
+body
+  display: flex
+  min-height: 100vh
+  flex-direction: column
+
+main
+  flex: 1 0 auto
+
+// NOTE: This path comes from the cljsjs jar
+@import "../../flatpickr/flatpickr.min.css"
+@import "../node_modules/spinkit/scss/spinners/2-double-bounce.scss"
+
+@import "variables"
+
+// Vendor
+@import "../node_modules/bulma/bulma"
+
+// Modules
+@import "modules/apply"
+@import "modules/list"
+@import "modules/modifiers"
+
+// Partials
+@import "partials/navbar"
+@import "partials/flatpickr"
+@import "partials/table"
+
+// Overrides
+@import "overrides/spinkit"
+@import "overrides/flatpickr"
+@import "overrides/menu"
+@import "overrides/forms"

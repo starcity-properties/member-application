@@ -1,0 +1,21 @@
+{:server-port     3449
+ :css-dirs        ["resources/public/assets/css"]
+ :builds-to-start ["apply"]
+ :builds
+ [{:id           "apply"
+   :source-paths ["src/cljs/apply" "src/cljs/starcity"]
+   :figwheel     {:on-jsload apply.core/run}
+   :compiler     {:main                 apply.core
+                  :preloads             [devtools.preload]
+                  :asset-path           "/js/cljs/apply/out"
+                  :output-to            "resources/public/js/cljs/apply.js"
+                  :output-dir           "resources/public/js/cljs/apply/out"
+                  :verbose              false
+                  :source-map           true
+                  :optimizations        :none
+                  :source-map-timestamp true
+                  :external-config
+                  {:devtools/config
+                   {:features-to-install    [:formatters :hints]
+                    :fn-symbol              "ƒ"
+                    :print-config-overrides true}}}}]}

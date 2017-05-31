@@ -1,0 +1,16 @@
+{:webserver {:port            #or [#env MAPP_PORT 8081]
+             :cookie-name     "starcity-session"
+             :secure-sessions #profile {:prod    true
+                                        :default false}}
+
+ :datomic {:partition :db.part/starcity
+           :uri       #or [#env DATOMIC_URI
+                           "datomic:mem://localhost:4334/starcity"]}
+
+ :root-domain #profile {:dev     "http://localhost:8080"
+                        :stage   "https://staging.joinstarcity.com"
+                        :default "https://joinstarcity.com"}
+
+ :secrets #include #env STARCITY_SECRETS
+
+ :data-dir #or [#env STARCITY_DATA_DIR "data"]}

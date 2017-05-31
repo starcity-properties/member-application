@@ -1,0 +1,24 @@
+{
+  "name": "mapp",
+  "version": "1.0.0",
+  "description": "Starcity's Member Application",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/starcity-properties/mapp.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://apply.joinstarcity.com",
+  "dependencies": {
+    "bulma": "^0.4.0",
+    "spinkit": "^1.2.5"
+  }
+}

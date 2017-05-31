@@ -1,0 +1,14 @@
+#+TITLE: mapp
+
+Starcity's *M*ember *App*lication.
+
+** Deploying
+
+*** Environment
+
+    The following environment variables should be set:
+
+    + =STARCITY_SECRETS=: Absolute path to secrets file.
+    + =DATOMIC_URI=: URI of the Datomic database. Defaults to in-memory.
+    + =STARCITY_DATA_DIR=: Path to the directory to store file data in.
+    + =MAPP_PORT= (/optional/): The port for the web server. Defaults to =8081=.
