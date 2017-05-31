@@ -1,6 +1,6 @@
 #+TITLE: mapp
 
-Starcity's *M*ember *App*lication.
+Starcity's Member Application.
 
 ** Deploying
 
