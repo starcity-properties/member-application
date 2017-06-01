@@ -34,11 +34,12 @@
     (when-not (or (= uri "/favicon.ico")
                   (string/starts-with? uri "/assets")
                   (string/starts-with? uri "/bundles"))
-      (timbre/debug "request:" (plumbing/assoc-when
-                                {:uri         uri
-                                 :method      request-method
-                                 :remote-addr remote-addr}
-                                :user (:account/email identity))))
+      (timbre/info :web/request
+                   (plumbing/assoc-when
+                    {:uri         uri
+                     :method      request-method
+                     :remote-addr remote-addr}
+                    :user (:account/email identity))))
     (handler req)))
 
 (defn wrap-deps [handler deps]

@@ -43,7 +43,7 @@
                  [cheshire "5.6.3"]
                  [clj-time "0.12.0"]
                  [mount "0.1.11"]
-                 [com.taoensso/timbre "4.8.0"]
+                 [com.taoensso/timbre "4.10.0"]
                  [prismatic/plumbing "0.5.3"]
                  [starcity/ribbon "0.1.0"]
                  [starcity/toolbelt "0.1.4" :exclusions [com.datomic/datomic-free]]

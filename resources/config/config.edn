@@ -12,6 +12,13 @@
                         :stage   "https://staging.joinstarcity.com"
                         :default "https://joinstarcity.com"}
 
+ :log {:level    #profile {:dev     :trace
+                           :default :info}
+       :appender #profile {:dev     :spit
+                           :default :rolling}
+       :file     #profile {:dev     "logs/server.log"
+                           :default "/var/log/mapp/server.log"}}
+
  :secrets #include #env STARCITY_SECRETS
 
  :data-dir #or [#env STARCITY_DATA_DIR "data"]}

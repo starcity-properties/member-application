@@ -8,6 +8,7 @@
             [mount.core :as mount :refer [defstate]]
             [mapp.config]
             [mapp.server]
+            [mapp.log]
             [mapp.datomic :refer [conn]]))
 
 (timbre/refer-timbre)

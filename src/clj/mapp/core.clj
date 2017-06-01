@@ -4,6 +4,7 @@
             [mapp.server]
             [mapp.datomic]
             [mapp.countries]
+            [mapp.log]
             [clojure.tools.cli :refer [parse-opts]]
             [mount.core :as mount]))
 
