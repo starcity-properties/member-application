@@ -78,7 +78,7 @@
         (wrap-not-modified))))
 
 (defn- start-server [port handler]
-  (timbre/infof "webserver is starting on port %d" port)
+  (timbre/infof "webserver is starting on port %s" port)
   (httpkit/run-server handler {:port port :max-body (* 20 1024 1024)}))
 
 (defn- stop-server [server]

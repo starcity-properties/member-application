@@ -1,7 +1,8 @@
 (ns mapp.config
   (:require [aero.core :as aero]
             [mount.core :as mount :refer [defstate]]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [toolbelt.core :as tb]))
 
 (defstate config
   :start (-> (io/resource "config.edn")
@@ -15,7 +16,7 @@
 (defn webserver-port
   "Produce the port that the webserver should start on."
   [config]
-  (get-in config [:webserver :port]))
+  (tb/str->int (get-in config [:webserver :port])))
 
 (defn cookie-name
   "Session cookie name."
@@ -57,7 +58,7 @@
 (defn nrepl-port
   "Port to run the nrepl server on."
   [config]
-  (get-in config [:nrepl :port]))
+  (tb/str->int (get-in config [:nrepl :port])))
 
 ;; =============================================================================
 ;; Stripe

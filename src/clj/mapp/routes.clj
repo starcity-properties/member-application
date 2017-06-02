@@ -14,7 +14,8 @@
              [config :as config :refer [config]]]
             [mapp.models.apply :as apply]
             [net.cgrand.enlive-html :as html]
-            [ring.util.response :as response]))
+            [ring.util.response :as response]
+            [clojure.java.io :as io]))
 
 (defn- login! [{:keys [params session deps] :as req}]
   (let [{:keys [email password]} params
@@ -48,7 +49,7 @@
 (defroutes routes
   (GET "/login" []
        (fn [req]
-         (-> (response/file-response "resources/public/login.html")
+         (-> (response/resource-response "public/login.html")
              (response/content-type "text/html"))))
 
   (POST "/login" [] login!)
