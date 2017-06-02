@@ -1,10 +1,12 @@
 (ns mapp.config
   (:require [aero.core :as aero]
-            [mount.core :as mount :refer [defstate]]))
+            [mount.core :as mount :refer [defstate]]
+            [clojure.java.io :as io]))
 
 (defstate config
-  :start (aero/read-config "resources/config/config.edn" {:resolver aero/root-resolver
-                                                          :profile  (:env (mount/args))}))
+  :start (-> (io/resource "config.edn")
+             (aero/read-config {:resolver aero/root-resolver
+                                :profile  (:env (mount/args))})))
 
 ;; =============================================================================
 ;; Web Server
@@ -47,6 +49,15 @@
   "The Datomic partition."
   [config]
   (:partition (datomic config)))
+
+;; =============================================================================
+;; nrepl
+;; =============================================================================
+
+(defn nrepl-port
+  "Port to run the nrepl server on."
+  [config]
+  (get-in config [:nrepl :port]))
 
 ;; =============================================================================
 ;; Stripe

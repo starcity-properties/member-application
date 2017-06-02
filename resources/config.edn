@@ -8,9 +8,9 @@
                            ^:ref [:secrets :datomic :uri]
                            "datomic:mem://localhost:4334/starcity"]}
 
- :root-domain #profile {:dev     "http://localhost:8080"
-                        :stage   "https://staging.joinstarcity.com"
-                        :default "https://joinstarcity.com"}
+ :root-domain #profile {:dev   "http://localhost:8080"
+                        :stage "https://staging.joinstarcity.com"
+                        :prod  "https://joinstarcity.com"}
 
  :log {:level    #profile {:dev     :trace
                            :default :info}
@@ -18,6 +18,8 @@
                            :default :rolling}
        :file     #profile {:dev     "logs/server.log"
                            :default "/var/log/mapp/server.log"}}
+
+ :nrepl {:port #or [#env NREPL_PORT 7890]}
 
  :secrets #include #env STARCITY_SECRETS
 
