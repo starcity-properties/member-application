@@ -49,8 +49,10 @@
 (defroutes routes
   (GET "/login" []
        (fn [req]
-         (-> (response/resource-response "public/login.html")
-             (response/content-type "text/html"))))
+         (if-not (config/development? config)
+           (response/redirect (format "%s/login" (config/root-domain config)))
+           (-> (response/resource-response "public/login.html")
+               (response/content-type "text/html")))))
 
   (POST "/login" [] login!)
 

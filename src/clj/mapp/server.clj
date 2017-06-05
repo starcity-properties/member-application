@@ -1,5 +1,6 @@
 (ns mapp.server
-  (:require [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
+  (:require [buddy.auth :as buddy]
+            [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
             [clojure.string :as string]
             [customs.access :as access]
             [mapp
@@ -25,7 +26,8 @@
              [resource :refer [wrap-resource]]
              [session :refer [wrap-session]]]
             [ring.middleware.session.datomic :refer [datomic-store session->entity]]
-            [taoensso.timbre :as timbre]))
+            [taoensso.timbre :as timbre]
+            [ring.util.response :as response]))
 
 (defn wrap-logging
   "Middleware to log requests."
@@ -55,6 +57,22 @@
    (assets/load-bundles "public" optimus-bundles)
    (assets/load-assets "public" [#"/assets/img/*"])))
 
+(defn- unauthorized-handler
+  "An unauthorized handler that redirects to the root domain's `login` endpoint
+  when not in a development environment."
+  [request metadata]
+  (if-not (config/development? config)
+    (response/redirect (format "%s/login" (config/root-domain config)))
+    (let [[status body] (if (buddy/authenticated? request)
+                          [403 "You are not authorized to view this page."]
+                          [401 "You are not authenticated; please <a href='/login'>log in.</a>"])]
+      (-> (response/response body)
+          (response/status status)
+          (response/content-type "text/html")))))
+
+(def ^:private auth-backend
+  (access/auth-backend :unauthorized-handler unauthorized-handler))
+
 (defn app-handler [deps]
   (let [[optimize strategy] (if (config/development? config)
                               [optimizations/none strategies/serve-live-assets]
@@ -62,8 +80,8 @@
     (-> routes/routes
         (optimus/wrap assemble-assets optimize strategy)
         (wrap-deps deps)
-        (wrap-authorization (access/auth-backend))
-        (wrap-authentication (access/auth-backend))
+        (wrap-authorization auth-backend)
+        (wrap-authentication auth-backend)
         (wrap-logging)
         (wrap-keyword-params)
         (wrap-nested-params)
