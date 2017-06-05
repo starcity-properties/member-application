@@ -1,4 +1,4 @@
-(defproject mapp "1.0.0"
+(defproject mapp "1.0.1-SNAPSHOT"
   :description "Starcity's Member Application"
   :url "http://apply.joinstarcity.com"
   :license {:name "Eclipse Public License"
@@ -19,7 +19,7 @@
                  [optimus "0.19.1"]
                  [starcity/customs "0.1.0"]
                  [starcity/datomic-session-store "0.1.0"]
-                 [starcity/facade "0.1.0"]
+                 [starcity/facade "0.1.1"]
                  ;; CLJS
                  [cljsjs/flatpickr "2.0.0-rc.7-0"]
                  [reagent "0.6.0"]

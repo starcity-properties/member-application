@@ -7,7 +7,7 @@
             [taoensso.timbre :as timbre]))
 
 (defn- new-connection [{:keys [uri partition] :as conf}]
-  (timbre/infof "connecting to Datomic database at uri %s..." uri)
+  (timbre/debugf "connecting to Datomic database at uri %s..." uri)
   (d/create-database uri)
   (let [conn (d/connect uri)]
     (blueprints/conform-db conn partition)
@@ -17,7 +17,7 @@
     conn))
 
 (defn- disconnect [conn]
-  (timbre/info "disconnecting from Datomic database...")
+  (timbre/debug "disconnecting from Datomic database...")
   (d/release conn))
 
 ;; =============================================================================
