@@ -156,7 +156,8 @@
   (b/validate
    data
    {:prior-experience [[v/required :message "Please tell us about your experiences with communal living."]]
-    :skills           [[v/required :message "Please tell us about your skills."]]}))
+    :skills           [[v/required :message "Please tell us about your skills."]]
+    :conflicts        [[v/required :message "Please tell us about how you resolve conflicts."]]}))
 
 ;; =============================================================================
 ;; Update
