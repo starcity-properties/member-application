@@ -28,7 +28,8 @@
                  :fitness/free-time
                  :fitness/dealbreakers
                  :fitness/skills
-                 :fitness/experience]} fitness]
+                 :fitness/experience
+                 :fitness/conflicts]} fitness]
      (merge
       db
       (prompts/syncify
@@ -36,4 +37,5 @@
         :community/about-you       {:free-time    free-time
                                     :dealbreakers dealbreakers}
         :community/communal-living {:skills           skills
-                                    :prior-experience experience}})))))
+                                    :prior-experience experience
+                                    :conflicts        conflicts}})))))

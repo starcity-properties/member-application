@@ -1,9 +1,9 @@
 (ns apply.community.views
   (:require [apply.prompts.views :as p]
-            [apply.community.models :as m]
             [re-frame.core :refer [subscribe dispatch]]
             [reagent.core :as r]
-            [starcity.dom :as dom]))
+            [starcity.dom :as dom]
+            [toolbelt.core :as tb]))
 
 ;; =============================================================================
 ;; Why Starcity
@@ -49,7 +49,7 @@
           " section will be made available to existing community members at the
           locations you applied to to aid in the selection of future members."]
          [:div.form-container
-          [:div.form-group
+          [:div.field
            [why-starcity-label]
            [:textarea.textarea
             {:value     @answer
@@ -69,12 +69,12 @@
          [:p "Lasting relationships are often built through common interests.
          Help us get to know you by telling us more about yourself."]
          [:div.form-container
-          [:div.form-group
+          [:div.field
            [:label.label "What do you like to do in your free time?"]
            [:textarea.textarea
             {:value     (:free-time @answers)
              :on-change #(dispatch [:community/about-you :free-time (dom/val %)])}]]
-          [:div.form-group
+          [:div.field
            [:label.label "Do you have any dealbreakers?"]
            [:textarea.textarea
             {:value     (:dealbreakers @answers)
@@ -93,13 +93,18 @@
         [:div.content
          [:p "Starcity is a safe space for individuals to come together and share their skills, experiences and perspectives. Our members give to one another and to the greater communities in which they live. We hope you’re as excited about sharing and giving back as we are."]
          [:div.form-container
-          [:div.form-group
+          [:div.field
            [:label.label "Describe your past experience(s) living in shared spaces."]
            [:textarea.textarea
             {:value     (:prior-experience @answers)
              :on-change #(dispatch [:community/communal-living :prior-experience (dom/val %)])}]]
-          [:div.form-group
+          [:div.field
            [:label.label "How will you contribute to the community?"]
            [:textarea.textarea
             {:value     (:skills @answers)
-             :on-change #(dispatch [:community/communal-living :skills (dom/val %)])}]]]])))))
+             :on-change #(dispatch [:community/communal-living :skills (dom/val %)])}]]
+          [:div.field
+           [:label.label "Please describe how you would resolve a conflict between yourself and another member of the home."]
+           [:textarea.textarea
+            {:value     (:conflicts @answers)
+             :on-change #(dispatch [:community/communal-living :conflicts (dom/val %)])}]]]])))))

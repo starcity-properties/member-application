@@ -5,4 +5,5 @@
    :community/about-you       {:free-time    ""
                                :dealbreakers ""}
    :community/communal-living {:prior-experience ""
-                               :skills           ""}})
+                               :skills           ""
+                               :conflicts        ""}})

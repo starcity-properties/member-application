@@ -60,7 +60,8 @@
                :fitness/free-time
                :fitness/dealbreakers
                :fitness/skills
-               :fitness/experience]}
+               :fitness/experience
+               :fitness/conflicts]}
              :application/status
              :db/id]}]
           (:db/id account)))
@@ -387,9 +388,10 @@
        (community-fitness-tx app)))
 
 (defmethod update-tx :community/communal-living
-  [_ {:keys [prior-experience skills]} app _]
+  [_ {:keys [prior-experience skills conflicts]} app _]
   (->> {:fitness/skills     skills
-        :fitness/experience prior-experience}
+        :fitness/experience prior-experience
+        :fitness/conflicts  conflicts}
        (community-fitness-tx app)))
 
 ;; =====================================
