@@ -34,7 +34,7 @@
                  [cljsjs/react-dom "15.4.2-2"]
                  ;; DB
                  [com.datomic/datomic-pro "0.9.5544" :exclusions [com.google.guava/guava]]
-                 [starcity/blueprints "1.6.0" :exclusions [com.datomic/datomic-free]]
+                 [starcity/blueprints "1.6.1" :exclusions [com.datomic/datomic-free]]
                  [org.postgresql/postgresql "9.4.1211"]
                  [io.rkn/conformity "0.4.0"]
                  ;; Util

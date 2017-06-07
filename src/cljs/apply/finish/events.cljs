@@ -7,10 +7,17 @@
             [day8.re-frame.http-fx]
             [starcity.log :as l]
             [ajax.core :as ajax]
-            [apply.notifications :as n]))
+            [apply.notifications :as n]
+            [clojure.string :as string]
+            [plumbing.core :as plumbing]))
 
 ;; =============================================================================
 ;; Editing
+
+(reg-event-db
+ :finish.referral/choose
+ (fn [db [_ source]]
+   (assoc-in db [:finish/pay :referral/source] source)))
 
 (reg-event-db
  :finish.pay/toggle-agree
@@ -31,7 +38,11 @@
    {:db         (assoc db :prompt/loading true)
     :http-xhrio {:method          :post
                  :uri             "/api/submit-payment"
-                 :params          {:token (:id token)}
+                 :params          (let [s  (get-in db [:finish/pay :referral/source])
+                                        s' (when-not (string/blank? s) s)]
+                                    (plumbing/assoc-when
+                                     {:token (:id token)}
+                                     :referral s'))
                  :format          (ajax/json-request-format)
                  :response-format (ajax/json-response-format {:keywords? true})
                  :on-failure      [:finish.submit-payment/failure]
