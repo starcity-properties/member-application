@@ -1,5 +1,6 @@
 (ns mapp.routes
   (:require [buddy.auth.accessrules :refer [restrict]]
+            [blueprints.models.referral :as referral]
             [compojure.core :as compojure :refer [context defroutes GET POST]]
             [customs
              [access :as access]
@@ -39,7 +40,8 @@
                     :chatlio? true
                     :scripts ["https://checkout.stripe.com/checkout.js"]
                     :json [["stripe" {:amount apply/application-fee
-                                      :key    (config/stripe-public-key config)}]]
+                                      :key    (config/stripe-public-key config)}]
+                           ["referral_sources" referral/sources]]
                     :css-bundles ["apply.css"]
                     :stylesheets [facade/font-awesome])
         (render)

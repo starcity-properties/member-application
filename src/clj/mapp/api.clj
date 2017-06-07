@@ -21,16 +21,21 @@
             [me.raynes.fs :as fs]
             [ring.util.response :as response]
             [taoensso.timbre :as timbre]
-            [toolbelt.validation :as validation]))
+            [toolbelt.validation :as validation]
+            [plumbing.core :as plumbing]))
+
 
 ;; =============================================================================
 ;; Util
 ;; =============================================================================
 
+
 (defn ->conn [req]
   (get-in req [:deps :conn]))
 
+
 (def ->db (comp d/db ->conn))
+
 
 (defn requester
   "Produce the `account` entity that initiated this `request`."
@@ -38,24 +43,30 @@
   (let [id (get-in request [:identity :db/id])]
     (d/entity (->db request) id)))
 
+
 (defn- json [response]
   (response/content-type response "application/json; charset=utf-8"))
 
+
 (def ^:private ok (comp json response/response))
+
 
 (defn- unprocessable [body]
   (-> (response/response body)
       (response/status 422)
       (json)))
 
+
 (defn- malformed [body]
   (-> (response/response body)
       (response/status 400)
       (json)))
 
+
 ;; =============================================================================
 ;; Initialize
 ;; =============================================================================
+
 
 (defn initialize-handler
   "Produce the requesting user's application progress."
@@ -63,19 +74,24 @@
   (let [account (requester req)]
     (ok (apply/bootstrap (->db req) account))))
 
+
 ;; =============================================================================
 ;; Update
 ;; =============================================================================
 
+
 ;; =============================================================================
 ;; Validation
 
+
 (defmulti ^:private validate (fn [_ _ k] k))
+
 
 (defvalidator members
   {:default-message-format "Invalid community selection(s)."}
   [values coll]
   (every? #(coll %) values))
+
 
 (defmethod validate :logistics/communities
   [db data _]
@@ -85,6 +101,7 @@
      {:communities [[v/required :message "You must choose at least one community."]
                     [members (set internal-names)]]})))
 
+
 (defmethod validate :logistics/license
   [db data _]
   (let [valid-ids (map :db/id (license/available db))]
@@ -93,12 +110,14 @@
      {:license [[v/required :message "You must choose a license."]
                 [v/member (set valid-ids) :message "The chosen license is invalid."]]})))
 
+
 (defmethod validate :logistics/move-in-date
   [_ data _]
   (b/validate
    data
    {:move-in-date [[v/required :message "You must supply a move-in-date."]
                    v/datetime]}))
+
 
 (defmethod validate :logistics/pets
   [_ data _]
@@ -114,16 +133,19 @@
       :weight   [[v/required :message "Please let us know how much your dog weights." :pre has-dog?]
                  [v/integer :message "The weight must be an integer."]]})))
 
+
 (defmethod validate :personal/phone-number
   [_ data _]
   (b/validate
    data
    {:phone-number [[v/required :message "You must supply a phone number."]]}))
 
+
 (defvalidator over-eighteen?
   {:default-message-format "You must be at least 18 years old."}
   [date]
   (t/before? (c/to-date-time date) (t/minus (t/now) (t/years 18))))
+
 
 (defmethod validate :personal/background
   [_ data _]
@@ -139,17 +161,20 @@
               :locality    [[v/required :message "The city/town that you live in is required."]]
               :postal-code [[v/required :message "Your postal code is required."]]}}))
 
+
 (defmethod validate :community/why-starcity
   [_ data _]
   (b/validate
    data
    {:why-starcity [[v/required :message "Please tell us about why you want to join Starcity."]]}))
 
+
 (defmethod validate :community/about-you
   [_ data _]
   (b/validate
    data
    {:free-time [[v/required :message "Please tell us about what you like to do in your free time."]]}))
+
 
 (defmethod validate :community/communal-living
   [_ data _]
@@ -162,35 +187,44 @@
 ;; =============================================================================
 ;; Update
 
+
 (def ^:private path->key
   (partial apply keyword))
+
 
 (def ^:private submitted-msg
   "Your application has already been submitted, so it cannot be updated.")
 
+
 (defn update-handler
   "Handle an update of user's application."
   [{:keys [params] :as req}]
-  (let [account (requester req)
-        app     (application/by-account (->db req) account)
-        path    (path->key (:path params))
-        vresult (validate (->db req) (:data params) path)]
+  (let [acct (requester req)
+        appl (application/by-account (->db req) acct)
+        path (path->key (:path params))
+        vres (validate (->db req) (:data params) path)]
     (cond
       ;; there's an application, and it's not in-progress
-      (and app
-           (not (application/in-progress? app))) (unprocessable {:errors [submitted-msg]})
-      (not (validation/valid? vresult))          (malformed {:errors (validation/errors vresult)})
-      :otherwise                                 (do
-                                                   (apply/update (->conn req) (:data params) account path)
-                                                   (ok (apply/progress (->db req) account))))))
+      (and (some? appl) (not (application/in-progress? appl)))
+      (unprocessable {:errors [submitted-msg]})
+
+      (not (validation/valid? vres))
+      (malformed {:errors (validation/errors vres)})
+
+      :otherwise
+      (do
+        (apply/update (->conn req) (:data params) acct path)
+        (ok (apply/progress (->db req) acct))))))
+
 
 ;; =============================================================================
 ;; Income Files
 ;; =============================================================================
 
+
 (defn- write-income-file!
   "Write a an income file to the filesystem and add an entity that points to the
-  account and file path."
+  account f dand file path."
   [account {:keys [filename content-type tempfile size]}]
   (try
     (let [output-dir  (format "%s/income-uploads/%s" (config/data-dir config) (:db/id account))
@@ -205,10 +239,12 @@
       (timbre/error e "failed to write income file" {:user (account/email account)})
       (throw e))))
 
+
 (defn create-income-files!
   "Save the income files for a given account."
   [conn account files]
   @(d/transact conn (mapv (partial write-income-file! account) files)))
+
 
 (defn income-files-handler
   [{:keys [params] :as req}]
@@ -219,20 +255,34 @@
         (ok (apply/progress (->db req) account)))
       (malformed {:errors ["You must choose at least one file to upload."]}))))
 
+
+;; NOTE: [idea] Make an error library using .cljc that provides a set of constructors
+;; and accessors across both clojure and clojurescript for dealing with error
+;; responses.
+
+;; Use protocols and records for construction and dispatch
+
+
 (defn payment-handler
-  [{:keys [params] :as req}]
-  (let [token   (:token params)
-        account (requester req)
+  [{{:keys [token referral] :as params} :params :as req}]
+  (let [account (requester req)
         app     (application/by-account (->db req) account)]
-    (if (and token (apply/finished? (->db req) account))
-      (do
-        (apply/submit! (->conn req) token account)
-        (ok {}))
-      (malformed {:errors ["You must submit payment."]}))))
+    (cond
+      (not (apply/finished? (->db req) account))
+      (unprocessable {:errors ["Please finish the application before submitting payment."]})
+
+      (nil? token)
+      (malformed {:errors ["You must submit payment."]})
+
+      :otherwise
+      (do (apply/submit! (->conn req) token account referral)
+          (ok {})))))
+
 
 ;; =============================================================================
 ;; Routes
 ;; =============================================================================
+
 
 (defroutes routes
   (GET "/" [] initialize-handler)
