@@ -1,7 +1,8 @@
 (ns apply.community.subs
   (:require [apply.prompts.models :as prompts]
             [re-frame.core :refer [reg-sub]]
-            [clojure.string :as s]))
+            [clojure.string :as s]
+            [toolbelt.core :as tb]))
 
 ;; =============================================================================
 ;; Helpers
@@ -18,9 +19,11 @@
   ;; NOTE: dealbreakers isn't really required.
   (answer-long-enough? free-time))
 
-(defn communal-living-complete? [{:keys [prior-experience skills]}]
+(defn communal-living-complete?
+  [{:keys [prior-experience skills conflicts]}]
   (and (answer-long-enough? prior-experience)
-       (answer-long-enough? skills)))
+       (answer-long-enough? skills)
+       (answer-long-enough? conflicts)))
 
 ;; =============================================================================
 ;; Why Starcity

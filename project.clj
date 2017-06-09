@@ -1,4 +1,4 @@
-(defproject mapp "1.0.0"
+(defproject mapp "1.0.1"
   :description "Starcity's Member Application"
   :url "http://apply.joinstarcity.com"
   :license {:name "Eclipse Public License"
@@ -19,7 +19,7 @@
                  [optimus "0.19.1"]
                  [starcity/customs "0.1.0"]
                  [starcity/datomic-session-store "0.1.0"]
-                 [starcity/facade "0.1.0"]
+                 [starcity/facade "0.1.1"]
                  ;; CLJS
                  [cljsjs/flatpickr "2.0.0-rc.7-0"]
                  [reagent "0.6.0"]
@@ -34,7 +34,7 @@
                  [cljsjs/react-dom "15.4.2-2"]
                  ;; DB
                  [com.datomic/datomic-pro "0.9.5544" :exclusions [com.google.guava/guava]]
-                 [starcity/blueprints "1.6.0" :exclusions [com.datomic/datomic-free]]
+                 [starcity/blueprints "1.6.1" :exclusions [com.datomic/datomic-free]]
                  [org.postgresql/postgresql "9.4.1211"]
                  [io.rkn/conformity "0.4.0"]
                  ;; Util
