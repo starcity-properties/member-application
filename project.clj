@@ -1,4 +1,4 @@
-(defproject mapp "1.0.1"
+(defproject mapp "1.0.2"
   :description "Starcity's Member Application"
   :url "http://apply.joinstarcity.com"
   :license {:name "Eclipse Public License"
@@ -46,7 +46,7 @@
                  [com.taoensso/timbre "4.10.0"]
                  [prismatic/plumbing "0.5.3"]
                  [starcity/ribbon "0.1.0"]
-                 [starcity/toolbelt "0.1.4" :exclusions [com.datomic/datomic-free]]
+                 [starcity/toolbelt "0.1.5" :exclusions [com.datomic/datomic-free]]
                  [me.raynes/fs "1.4.6"]]
 
   :plugins [[lein-cljsbuild "1.1.4"]
