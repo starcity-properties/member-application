@@ -264,7 +264,6 @@
 
 (defn pets []
   (let [pets-info (subscribe [:logistics.pets/form-data])]
-    (fn []
-      (p/prompt
-       (p/header "Do you have a furry friend who will be living with you?")
-       (p/content [pets-content @pets-info])))))
+    (p/prompt
+     (p/header "Do you have a furry friend who will be living with you?")
+     (p/content [pets-content @pets-info]))))

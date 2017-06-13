@@ -1,9 +1,8 @@
 (ns apply.logistics.events
-  (:require [re-frame.core :refer [reg-event-db debug]]
+  (:require [apply.prompts.models :as prompts]
             [clojure.set :as set]
-            [starcity.log :as l]
-            [apply.prompts.models :as prompts]
-            [clojure.spec :as s]))
+            [plumbing.core :as plumbing]
+            [re-frame.core :refer [reg-event-db]]))
 
 ;; Triggered when a community is selected. Either add it to the set, or remove
 ;; it from the set held in `:logistics/communities`.
@@ -31,7 +30,8 @@
 (reg-event-db
  :logistics.pets/has-pet
  (fn [db [_ has-pet]]
-   (let [db' (assoc-in db [:logistics/pets :local :has-pet] has-pet)]
+   (let [db' (-> (assoc-in db [:logistics/pets :local :has-pet] has-pet)
+                 (plumbing/dissoc-in [:logistics/pets :local :pet-type]))]
      (if has-pet
        (assoc-in db' [:logistics/pets :local :pet-type] "dog")
        db'))))
