@@ -21,6 +21,7 @@
              [customer :as rcu]]
             [toolbelt
              [async :refer [<!!?]]
+             [date :as date]
              [predicates :as p]]))
 
 ;; =============================================================================
@@ -323,7 +324,7 @@
 
 (defmethod update-tx :logistics/move-in-date
   [_ {date :move-in-date} application _]
-  [[:db/add (:db/id application) :application/move-in (c/to-date date)]])
+  [[:db/add (:db/id application) :application/move-in (date/beginning-of-day (c/to-date date))]])
 
 
 (defmethod update-tx :logistics/pets
