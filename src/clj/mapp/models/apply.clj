@@ -22,7 +22,9 @@
             [toolbelt
              [async :refer [<!!?]]
              [date :as date]
-             [predicates :as p]]))
+             [predicates :as p]]
+            [toolbelt.core :as tb]
+            [taoensso.timbre :as timbre]))
 
 ;; =============================================================================
 ;; Constants
@@ -40,7 +42,6 @@
 
 ;; =============================================================================
 ;; Progress
-
 ;; =============================================================================
 
 
@@ -61,7 +62,14 @@
              :application/move-in
              :application/has-pet
              {:application/pet
-              [:pet/type :pet/breed :pet/weight]}
+              [:pet/type
+               :pet/breed
+               :pet/weight
+               :pet/daytime-care
+               :pet/demeanor
+               :pet/sterile
+               :pet/vaccines
+               :pet/bitten]}
              {:application/address
               [:address/region :address/locality :address/postal-code :address/country]}
              {:application/fitness
@@ -110,14 +118,21 @@
 
 
 (defmethod parse :pet [_ _ data]
-  (let [{:keys [:pet/type :pet/breed :pet/weight] :as pet}
+  (let [{:keys [pet/type pet/breed pet/weight pet/daytime-care pet/demeanor
+                pet/vaccines pet/sterile pet/bitten] :as pet}
         (get-in data [:account/application :application/pet])]
-    (if (nil? (get-in data [:account/application :application/has-pet]))
-      {}
-      (plumbing/assoc-when {:has-pet (boolean pet)}
-                           :pet-type (when type (name type))
-                           :breed breed
-                           :weight weight))))
+    (if-some [has-pet (get-in data [:account/application :application/has-pet])]
+      (tb/assoc-some
+       {:has-pet has-pet}
+       :pet-type (when (some? type) (name type))
+       :breed breed
+       :weight weight
+       :daytime-care daytime-care
+       :demeanor demeanor
+       :vaccines vaccines
+       :sterile sterile
+       :bitten bitten)
+      {})))
 
 
 (defmethod parse :community-safety [_ _ data]
@@ -327,25 +342,58 @@
   [[:db/add (:db/id application) :application/move-in (date/beginning-of-day (c/to-date date))]])
 
 
+(defn- assemble-pet-tx
+  [{:keys [has-pet pet-type breed weight daytime-care demeanor vaccines sterile bitten]
+    :as   params}]
+  (tb/assoc-some
+   {:pet/type (keyword pet-type)}
+   :pet/breed breed
+   :pet/weight weight
+   :pet/daytime-care daytime-care
+   :pet/demeanor demeanor
+   :pet/vaccines vaccines
+   :pet/sterile sterile
+   :pet/bitten bitten))
+
+
+(defn- update-pet
+  "Indicated that they have a pet AND there's already a pet entity -- this is an
+  update."
+  [{:keys [has-pet pet-type breed weight] :as params} pet]
+  (when (and has-pet pet)
+    [(-> (assemble-pet-tx params)
+         (assoc :db/id (:db/id pet)))]))
+
+
+(defn- retract-pet
+  "Indicated that they do not have a pet, but previously had one. Retract pet
+  entity."
+  [params pet]
+  (when (and (not (:has-pet params)) pet)
+    [[:db.fn/retractEntity (:db/id pet)]]))
+
+
+(defn- create-pet
+  "Indicated that they have a pet, but previously did not. Create pet entity."
+  [{has-pet :has-pet :as params} pet app]
+  (when (and has-pet (not pet))
+    [{:db/id           (:db/id app)
+      :application/pet (assemble-pet-tx params)}]))
+
+
 (defmethod update-tx :logistics/pets
-  [_ {:keys [has-pet pet-type breed weight]} application _]
+  [_ {:keys [has-pet] :as params} application _]
   (let [pet (get application :application/pet)]
-    (-> (cond
-          ;; Indicated that they have a pet AND there's already a pet entiti -- this is an update
-          (and has-pet pet)             [(plumbing/assoc-when
-                                          {:db/id    (:db/id pet)
-                                           :pet/type (keyword pet-type)}
-                                          :pet/breed breed :pet/weight weight)]
-          ;; Indicated that they do not have a pet, but previously had one. Retract pet entity.
-          (and (not has-pet) pet)       [[:db.fn/retractEntity (:db/id pet)]]
-          ;; Indicated that they have a pet, but previously did not. Create pet entity
-          (and has-pet (not pet))       [{:db/id           (:db/id application)
-                                          :application/pet (plumbing/assoc-when
-                                                            {:pet/type (keyword pet-type)}
-                                                            :pet/breed breed :pet/weight weight)}]
-          ;; Indicated that they have no pet, and had no prior pet. Do nothing.
-          (and (not has-pet) (not pet)) [])
-        ;; Update application flag.
+    (timbre/debug "pet params:" params (or (update-pet params pet)
+                                           (retract-pet params pet)
+                                           (create-pet params pet application)
+                                           ;; Indicated that they have no pet, and had no prior pet. Do nothing.
+                                           []))
+    (-> (or (update-pet params pet)
+            (retract-pet params pet)
+            (create-pet params pet application)
+            ;; Indicated that they have no pet, and had no prior pet. Do nothing.
+            [])
         (conj [:db/add (:db/id application) :application/has-pet has-pet]))))
 
 
