@@ -7,7 +7,8 @@
             [cljs-time.core :as t]
             [cljs-time.coerce :as c]
             [cljsjs.flatpickr]
-            [starcity.log :as l]))
+            [starcity.log :as l]
+            [toolbelt.core :as tb]))
 
 ;; =============================================================================
 ;; Choose Communities
@@ -204,63 +205,111 @@
 ;; =============================================================================
 ;; Internal
 
-(defn- to-bool [yes-or-no]
-  (= yes-or-no "yes"))
 
-(defn- has-dog-control [{has-pet :has-pet}]
-  [:div.form-group
-   [:label.label "Do you have a dog?"]
-   [:p.control
-    (doall
-     (for [[label value] [["Yes" "yes"] ["No" "no"]]]
-       ^{:key label}
-       [:label.radio
-        [:input {:type      "radio"
-                 :name      "has-pet"
-                 :checked   (= has-pet (to-bool value))
-                 :value     value
-                 :on-change #(dispatch [:logistics.pets/has-pet (-> % dom/val to-bool)])}]
-        label]))]])
+(defn binary-radio
+  [{:keys [name value on-change] :as opts}]
+  (let [to-bool #(= % "yes")]
+    [:p.control
+     (doall
+      (for [[lbl val] [["Yes" "yes"] ["No" "no"]]]
+        ^{:key lbl}
+        [:label.radio
+         [:input {:type      "radio"
+                  :name      name
+                  :checked   (= value (to-bool val))
+                  :value     val
+                  :on-change #(on-change (-> % dom/val to-bool))}]
+         lbl]))]))
 
-(defn- dog-controls [{weight :weight, breed :breed}]
-  (letfn [(-on-change
-            ([k]
-             (-on-change k identity))
-            ([k tf]
-             #(dispatch [(keyword "logistics.pets" (name k)) (tf (dom/val %))])))]
-    [:div.field.is-grouped
-     [:div.control.is-expanded
-      [:label.label "What breed?"]
+
+(defn field
+  [{:keys [is-grouped] :as opts} & children]
+  [:div.field {:class (when is-grouped "is-grouped")}
+   (map-indexed #(with-meta %2 {:key %1}) children)])
+
+
+(defn control
+  [{:keys [label is-expanded] :or {is-expanded true} :as opts} input]
+  [:div.control {:class (when is-expanded "is-expanded")}
+   (when label [:label.label label])
+   input])
+
+
+(defn- on-change
+  ([k]
+   (on-change k identity))
+  ([k tf]
+   #(dispatch [:logistics.pets/update! k (tf %)])))
+
+
+(defn- binary-radio* [info k]
+  [binary-radio {:name (name k) :value (get info k) :on-change (on-change k)}])
+
+
+(defn- breed-weight
+  [{:keys [breed weight] :as info}]
+  [field {:is-grouped true}
+   [control {:is-expanded true
+             :label       "What breed?"}
+    [:input.input
+     {:placeholder "breed"
+      :value       breed
+      :on-change   (on-change :breed dom/val)}]]
+   [control {:is-expanded true
+             :label       "How much does he/she weigh?"}
+    [:div.field.has-addons.has-addons-right
+     [:p.control.is-expanded
       [:input.input
-       {:placeholder "breed"
-        :value       breed
-        :on-change   (-on-change :breed)}]]
-     [:div.control.is-expanded
-      [:label.label "How much does he/she weigh?"]
-      [:div.field.has-addons.has-addons-right
-       [:p.control.is-expanded
-        [:input.input
-         {:type        "number"
-          :placeholder "weight"
-          :value       weight
-          :on-change   (-on-change :weight js/parseInt)}]]
-       [:a.button.is-disabled "lbs"]]]]))
+       {:type        "number"
+        :placeholder "weight"
+        :value       weight
+        :on-change   (on-change :weight (comp js/parseInt dom/val))}]]
+     [:a.button {:disabled true} "lbs"]]]])
 
-(def ^:private pets-desc
-  "Most of our communities are dog-friendly, but we unfortunately do not allow cats. If you have a dog, please let us know what breed and weight.")
+
+(defn- pet-radios [info]
+  [field {:is-grouped true}
+   [control {:label       "Is your pet spayed/neutered?"
+             :is-expanded true}
+    [binary-radio* info :sterile]]
+   [control {:label       "Are your pet's vaccines and/or licenses current?"
+             :is-expanded true}
+    [binary-radio* info :vaccines]]
+   [control {:label       "Has your pet ever bitten a human?"
+             :is-expanded true}
+    [binary-radio* info :bitten]]])
+
 
 (defn- pets-content
-  [{:keys [has-pet] :as pet-info}]
-  (let [has-dog? (and has-pet (#{"dog"} (:pet-type pet-info)))]
+  [{:keys [daytime-care demeanor] :as info}]
+  (let [dog (= "dog" (:pet-type info))]
     [:div.content
-     [:p pets-desc]
+     [:p "Most of our communities are dog-friendly, but we unfortunately do not allow cats. If you have a dog, please let us know what breed and weight."]
      [:div.form-container
-      [has-dog-control pet-info]
-      (when has-dog?
-        [dog-controls pet-info])]]))
+      [field {}
+       [control {:label "Do you have a dog?"}
+        [binary-radio* info :has-pet]]]
+      (when dog
+        [:div
+         [breed-weight info]
+         [field {}
+          [control {:label "How will your pet be taken care of during the day?"}
+           [:input.input
+            {:type      "text"
+             :value     daytime-care
+             :on-change (on-change :daytime-care dom/val)}]]]
+         [field {}
+          [control {:label "Please describe your pet's demeanor."}
+           [:textarea.textarea
+            {:value     demeanor
+             :on-change (on-change :demeanor dom/val)}]]]
+         [pet-radios info]])]]))
+
 
 ;; =============================================================================
 ;; API
+;; =============================================================================
+
 
 (defn pets []
   (let [pets-info (subscribe [:logistics.pets/form-data])]

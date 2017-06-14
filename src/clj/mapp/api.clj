@@ -125,13 +125,22 @@
         has-dog? (comp #{"dog"} :pet-type)]
     (b/validate
      data
-     {:has-pet  [[v/required :message "Please let us know whether or not you have a pet."]
-                 v/boolean]
-      :pet-type [[v/required :message "Please let us know what type of pet you have." :pre has-pet?]
-                 [v/member #{"cat" "dog"} :message "Your pet must be either a cat or a dog." :pre has-pet?]]
-      :breed    [[v/required :message "Please let us know what kind of dog you have." :pre has-dog?]]
-      :weight   [[v/required :message "Please let us know how much your dog weights." :pre has-dog?]
-                 [v/integer :message "The weight must be an integer."]]})))
+     {:has-pet      [[v/required :message "Please let us know whether or not you have a pet."]
+                     v/boolean]
+      :pet-type     [[v/required :message "Please let us know what type of pet you have." :pre has-pet?]
+                     [v/member #{"dog"} :message "Only dogs are allowed." :pre has-pet?]]
+      :breed        [[v/required :message "Please let us know what kind of dog you have." :pre has-dog?]]
+      :weight       [[v/required :message "Please let us know how much your dog weighs." :pre has-dog?]
+                     [v/integer :message "The weight must be an integer."]]
+      :daytime-care [[v/required :message "Please describe how your pet will be taken care of during the day."
+                      :pre has-pet?]]
+      :demeanor     [[v/required :message "Please tell us about your pet's demeanor." :pre has-pet?]]
+      :vaccines     [[v/required :message "Please tell us if your pet has up-to-date vaccinations." :pre has-pet?]
+                     v/boolean]
+      :sterile      [[v/required :message "Please tell us if your pet has been spayed/neutered." :pre has-pet?]
+                     v/boolean]
+      :bitten       [[v/required :message "Please tell us if your pet has bitten a human." :pre has-pet?]
+                     v/boolean]})))
 
 
 (defmethod validate :personal/phone-number

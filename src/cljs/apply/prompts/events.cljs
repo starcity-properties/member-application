@@ -16,8 +16,7 @@
 (defn- save-request
   "Construct a save request."
   [prompt-key params on-success on-failure]
-  (let [
-        overrides (when (= prompt-key :personal/income)
+  (let [overrides (when (= prompt-key :personal/income)
                     {:uri  "/api/verify-income"
                      :body params})]
     (merge {:method          :post
