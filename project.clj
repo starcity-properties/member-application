@@ -34,7 +34,7 @@
                  [cljsjs/react-dom "15.4.2-2"]
                  ;; DB
                  [com.datomic/datomic-pro "0.9.5544" :exclusions [com.google.guava/guava]]
-                 [starcity/blueprints "1.7.1" :exclusions [com.datomic/datomic-free]]
+                 [starcity/blueprints "1.8.0-SNAPSHOT" :exclusions [com.datomic/datomic-free]]
                  [org.postgresql/postgresql "9.4.1211"]
                  [io.rkn/conformity "0.4.0"]
                  ;; Util
@@ -45,8 +45,8 @@
                  [mount "0.1.11"]
                  [com.taoensso/timbre "4.10.0"]
                  [prismatic/plumbing "0.5.3"]
-                 [starcity/ribbon "0.1.0"]
-                 [starcity/toolbelt "0.1.6" :exclusions [com.datomic/datomic-free]]
+                 [starcity/ribbon "0.3.0-SNAPSHOT"]
+                 [starcity/toolbelt "0.1.7-SNAPSHOT" :exclusions [com.datomic/datomic-free]]
                  [me.raynes/fs "1.4.6"]]
 
   :plugins [[lein-cljsbuild "1.1.4"]
