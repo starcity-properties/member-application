@@ -527,9 +527,10 @@
   (let [[cus-id cha-id] (charge! token account)
         app             (application/by-account (d/db conn) account)]
     @(d/transact conn (plumbing/conj-when
-                       [[:db.application/submit (:db/id app)]
-                        (charge/create cha-id application-fee-dollars)
-                        (customer/create cus-id account)]
+                       (application/submit app)
+                       (charge/create account cha-id application-fee-dollars
+                                      :purpose (format "application fee for %s" (account/email account)))
+                       (customer/create cus-id account)
                        (when-some [r referral] (referral/apply r account))))))
 
 (s/fdef submit!
