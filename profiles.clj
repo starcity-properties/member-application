@@ -3,7 +3,7 @@
                       [lein-cooper "1.2.2" :exclusions [org.clojure/clojure]]]
        :dependencies [[figwheel-sidecar "0.5.8"]
                       [starcity/mailer "0.1.0"]
-                      [starcity/reactor "0.1.0"]
+                      [starcity/reactor "0.1.2"]
                       [binaryage/devtools "0.9.2"]]
        :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 
