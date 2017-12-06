@@ -50,9 +50,9 @@
 (defn- payment-content []
   [:div.content
    [:p "Take a moment to review our "
-    [:a {:href "https://joinstarcity.com/terms" :target "_blank"} "Terms of Service"]
+    [:a {:href "https://starcity.com/terms" :target "_blank"} "Terms of Service"]
     " and "
-    [:a {:href "https://joinstarcity.com/privacy" :target "_blank"} "Privacy Policy"]
+    [:a {:href "https://starcity.com/privacy" :target "_blank"} "Privacy Policy"]
     "."]
    [:p "After you have read them and agreed using the checkbox below, you're
        ready to pay the $25 application fee by clicking the "

@@ -20,7 +20,7 @@
 
 (defn- login! [{:keys [params session deps] :as req}]
   (let [{:keys [email password]} params
-        account (auth/authenticate (d/db (:conn deps)) email password)]
+        account                  (auth/authenticate (d/db (:conn deps)) email password)]
     (if (:account/activated account)
       (let [session (assoc session :identity account)]
         (-> (response/redirect "/")

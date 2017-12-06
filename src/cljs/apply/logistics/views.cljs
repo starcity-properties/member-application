@@ -22,8 +22,8 @@
   (dispatch [:logistics.communities/select community-name (dom/checked e)]))
 
 (def ^:private community-links
-  {"52gilbert"   "https://joinstarcity.com/communities/soma"
-   "2072mission" "https://joinstarcity.com/communities/mission"})
+  {"52gilbert"   "https://starcity.com/communities/soma"
+   "2072mission" "https://starcity.com/communities/mission"})
 
 (defn- community [{:keys [internal-name name num-units available-on]} selections]
   [:p.control
