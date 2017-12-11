@@ -1,4 +1,4 @@
-(defproject mapp "1.2.0-SNAPSHOT"
+(defproject mapp "1.2.1-SNAPSHOT"
   :description "Starcity's Member Application"
   :url "http://apply.starcity.com"
   :license {:name "Eclipse Public License"
@@ -34,7 +34,7 @@
                  [cljsjs/react-dom "15.4.2-2"]
                  ;; DB
                  [com.datomic/datomic-pro "0.9.5544" :exclusions [com.google.guava/guava]]
-                 [starcity/blueprints "1.8.0" :exclusions [com.datomic/datomic-free]]
+                 [starcity/blueprints "1.16.0" :exclusions [com.datomic/datomic-free]]
                  [org.postgresql/postgresql "9.4.1211"]
                  [io.rkn/conformity "0.4.0"]
                  ;; Util
@@ -46,7 +46,7 @@
                  [com.taoensso/timbre "4.10.0"]
                  [prismatic/plumbing "0.5.3"]
                  [starcity/ribbon "0.3.0"]
-                 [starcity/toolbelt "0.1.7" :exclusions [com.datomic/datomic-free]]
+                 [starcity/toolbelt "0.1.10" :exclusions [com.datomic/datomic-free]]
                  [me.raynes/fs "1.4.6"]]
 
   :plugins [[lein-cljsbuild "1.1.4"]
