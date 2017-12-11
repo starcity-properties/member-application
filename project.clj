@@ -1,6 +1,6 @@
-(defproject mapp "1.1.1"
+(defproject mapp "1.2.0-SNAPSHOT"
   :description "Starcity's Member Application"
-  :url "http://apply.joinstarcity.com"
+  :url "http://apply.starcity.com"
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.9.0-alpha14"]

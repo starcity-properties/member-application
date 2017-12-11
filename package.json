@@ -16,7 +16,7 @@
   },
   "author": "",
   "license": "ISC",
-  "homepage": "https://apply.joinstarcity.com",
+  "homepage": "https://apply.starcity.com",
   "dependencies": {
     "bulma": "^0.4.0",
     "spinkit": "^1.2.5"
