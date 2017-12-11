@@ -40,7 +40,7 @@
   :start (mailer/mailgun (get-in config [:mailgun :api-key])
                          (get-in config [:mailgun :domain])
                          {:sender  (get-in config [:mailgun :sender])
-                          :send-to "josh@joinstarcity.com"}))
+                          :send-to "josh@starcity.com"}))
 
 
 (defstate slack
