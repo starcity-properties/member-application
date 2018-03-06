@@ -9,7 +9,7 @@
             [ajax.core :as ajax]
             [apply.notifications :as n]
             [clojure.string :as string]
-            [plumbing.core :as plumbing]))
+            [toolbelt.core :as tb]))
 
 ;; =============================================================================
 ;; Editing
@@ -40,7 +40,7 @@
                  :uri             "/api/submit-payment"
                  :params          (let [s  (get-in db [:finish/pay :referral/source])
                                         s' (when-not (string/blank? s) s)]
-                                    (plumbing/assoc-when
+                                    (tb/assoc-when
                                      {:token (:id token)}
                                      :referral s'))
                  :format          (ajax/json-request-format)

@@ -6,6 +6,7 @@
             [mapp.countries]
             [mapp.nrepl]
             [mapp.log]
+            [mapp.teller]
             [clojure.tools.cli :refer [parse-opts]]
             [mount.core :as mount]))
 

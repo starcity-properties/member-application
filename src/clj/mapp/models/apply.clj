@@ -1,30 +1,23 @@
 (ns mapp.models.apply
   (:refer-clojure :exclude [update])
-  (:require [blueprints.models
-             [account :as account]
-             [application :as application]
-             [charge :as charge]
-             [customer :as customer]
-             [license :as license]
-             [property :as property]
-             [referral :as referral]]
+  (:require [blueprints.models.account :as account]
+            [blueprints.models.application :as application]
+            [blueprints.models.license :as license]
+            [blueprints.models.property :as property]
+            [blueprints.models.referral :as referral]
             [clj-time.coerce :as c]
-            [clojure
-             [set :as set]
-             [spec :as s]
-             [string :as string]]
+            [clojure.set :as set]
+            [clojure.spec.alpha :as s]
+            [clojure.string :as string]
             [datomic.api :as d]
             [mapp.config :as config :refer [config]]
-            [plumbing.core :as plumbing]
-            [ribbon
-             [charge :as rch]
-             [customer :as rcu]]
-            [toolbelt
-             [async :refer [<!!?]]
-             [date :as date]
-             [predicates :as p]]
+            [mapp.teller :refer [teller]]
+            [taoensso.timbre :as timbre]
+            [teller.customer :as customer]
+            [teller.payment :as payment]
             [toolbelt.core :as tb]
-            [taoensso.timbre :as timbre]))
+            [toolbelt.date :as date]
+            [toolbelt.datomic :as td]))
 
 ;; =============================================================================
 ;; Constants
@@ -32,12 +25,8 @@
 
 
 (def application-fee
-  "The application fee in cents."
-  2500)
-
-
-(def ^:private application-fee-dollars
-  (float (/ application-fee 100)))
+  "The application fee in dollars."
+  25.0)
 
 
 ;; =============================================================================
@@ -96,11 +85,11 @@
                :account/middle-name
                :account/phone-number
                :account/dob]}]
-  (-> {:name (plumbing/assoc-when
+  (-> {:name (tb/assoc-when
               {:first first-name
                :last  last-name}
               :middle middle-name)}
-      (plumbing/assoc-when :phone-number phone-number :dob dob)))
+      (tb/assoc-when :phone-number phone-number :dob dob)))
 
 
 (defmethod parse :communities [_ _ data]
@@ -285,7 +274,7 @@
   any values that were not already present."
   [conn entity-id attribute new-values]
   (let [ent        (d/entity (d/db conn) entity-id)
-        old-values (set (map #(if (p/entity? %) (:db/id %) %) (get ent attribute)))
+        old-values (set (map #(if (td/entity? %) (:db/id %) %) (get ent attribute)))
         to-remove  (set/difference old-values (->> new-values
                                                    (map (comp :db/id (partial d/entity (d/db conn))))
                                                    set))]
@@ -462,7 +451,7 @@
 ;; dealbreakers are considered optional, and may be nil
 (defmethod update-tx :community/about-you
   [_ {:keys [free-time dealbreakers]} app _]
-  (->> (plumbing/assoc-when {:fitness/free-time free-time}
+  (->> (tb/assoc-when {:fitness/free-time free-time}
                             :fitness/dealbreakers dealbreakers)
        (community-fitness-tx app)))
 
@@ -493,48 +482,36 @@
 ;; =============================================================================
 
 
-(defn- create-customer! [token account]
-  (let [key (config/stripe-secret-key config)]
-    (<!!? (rcu/create! key (account/email account) token))))
-
-(s/fdef create-customer!
-        :args (s/cat :token string? :account p/entity?)
-        :ret (s/and map? rcu/customer?))
-
-
-(defn- create-charge! [token account customer]
-  (let [key (config/stripe-secret-key config)]
-    (:id (<!!? (rch/create! key application-fee (rcu/default-source customer)
-                            :customer-id (rcu/customer-id customer)
-                            :email (account/email account)
-                            :description (format "application fee for %s"
-                                                 (account/email account)))))))
-(s/fdef create-charge!
-        :args (s/cat :token string?
-                     :account p/entity?
-                     :customer-id rcu/customer?)
-        :ret string?)
-
-
-(defn- charge! [token account]
-  (let [cus (create-customer! token account)]
-    [(rcu/customer-id cus) (create-charge! token account cus)]))
-
-
 (defn submit!
   "Submit the member application."
   [conn token account & [referral]]
-  (let [[cus-id cha-id] (charge! token account)
-        app             (application/by-account (d/db conn) account)]
-    @(d/transact conn (plumbing/conj-when
+  (let [app      (application/by-account (d/db conn) account)
+        customer (customer/create! teller (account/email account)
+                                   {:account     account
+                                    :external-id (account/email account)
+                                    :source      token})]
+    (payment/create! teller customer application-fee :payment.type/application-fee
+                     {:charge-now true})
+    @(d/transact conn (tb/conj-when
                        (application/submit app)
-                       (charge/create account cha-id application-fee-dollars
-                                      :purpose (format "application fee for %s" (account/email account)))
-                       (customer/create cus-id account)
                        (when-some [r referral] (referral/apply r account))))))
 
+
+(comment
+
+  (let [customer (customer/by-id teller "test@test.com")]
+    (customer/fetch-source teller customer :payment.type/application-fee))
+
+
+  (map d/touch (:payment/_customer (d/entity (d/db mapp.datomic/conn) 285873023223129)))
+
+
+
+  )
+
+
 (s/fdef submit!
-        :args (s/cat :conn p/conn?
+        :args (s/cat :conn td/conn?
                      :token string?
-                     :account p/entity?
+                     :account td/entity?
                      :opts (s/? string?)))

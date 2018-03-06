@@ -1,5 +1,5 @@
 (ns apply.prompts.models
-  (:require [clojure.spec :as s]
+  (:require [clojure.spec.alpha :as s]
             [reagent.core :as r]
             [toolbelt.core :as tb])
   (:refer-clojure :exclude [next]))

@@ -1,7 +1,6 @@
 (ns apply.logistics.events
   (:require [apply.prompts.models :as prompts]
             [clojure.set :as set]
-            [plumbing.core :as plumbing]
             [re-frame.core :refer [reg-event-db]]
             [toolbelt.core :as tb]))
 
@@ -43,7 +42,7 @@
 
 (defmethod update-pets :has-pet [db _ has-pet]
   (let [db' (-> (assoc-in db [:logistics/pets :local :has-pet] has-pet)
-                (plumbing/dissoc-in [:logistics/pets :local :pet-type]))]
+                (update-in [:logistics/pets :local] #(dissoc % :pet-type)))]
     (if has-pet
       (assoc-in db' [:logistics/pets :local :pet-type] "dog")
       db')))

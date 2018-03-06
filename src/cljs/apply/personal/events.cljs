@@ -1,7 +1,7 @@
 (ns apply.personal.events
   (:require [apply.prompts.models :as prompts]
             [re-frame.core :refer [reg-event-db debug]]
-            [clojure.spec :as s]))
+            [clojure.spec.alpha :as s]))
 
 ;; =============================================================================
 ;; Editing

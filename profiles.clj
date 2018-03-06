@@ -1,9 +1,8 @@
 {:dev {:source-paths ["src/clj" "src/cljs" "env/dev"]
-       :plugins      [[lein-figwheel "0.5.8" :exclusions [org.clojure/clojure org.clojure/core.async]]
+       :plugins      [[lein-figwheel "0.5.11" :exclusions [org.clojure/clojure org.clojure/core.async]]
                       [lein-cooper "1.2.2" :exclusions [org.clojure/clojure]]]
-       :dependencies [[figwheel-sidecar "0.5.8"]
-                      [starcity/mailer "0.1.0"]
-                      [starcity/reactor "0.1.3"]
+       :dependencies [[figwheel-sidecar "0.5.11"]
+                      [starcity/reactor "1.8.0-SNAPSHOT" :exclusions [starcity/toolbelt-datomic]]
                       [binaryage/devtools "0.9.2"]]
        :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 

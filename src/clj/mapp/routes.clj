@@ -1,22 +1,18 @@
 (ns mapp.routes
-  (:require [buddy.auth.accessrules :refer [restrict]]
-            [blueprints.models.referral :as referral]
+  (:require [blueprints.models.referral :as referral]
+            [buddy.auth.accessrules :refer [restrict]]
             [compojure.core :as compojure :refer [context defroutes GET POST]]
-            [customs
-             [access :as access]
-             [auth :as auth]
-             [role :as role]]
+            [customs.access :as access]
+            [customs.auth :as auth]
+            [customs.role :as role]
             [datomic.api :as d]
-            [facade
-             [core :as facade]
-             [snippets :as snippets]]
-            [mapp
-             [api :as api]
-             [config :as config :refer [config]]]
+            [facade.core :as facade]
+            [facade.snippets :as snippets]
+            [mapp.api :as api]
+            [mapp.config :as config :refer [config]]
             [mapp.models.apply :as apply]
             [net.cgrand.enlive-html :as html]
-            [ring.util.response :as response]
-            [clojure.java.io :as io]))
+            [ring.util.response :as response]))
 
 (defn- login! [{:keys [params session deps] :as req}]
   (let [{:keys [email password]} params
@@ -39,7 +35,7 @@
                              :logout-href (str (config/root-domain config) "/logout"))
                     :chatlio? true
                     :scripts ["https://checkout.stripe.com/checkout.js"]
-                    :json [["stripe" {:amount apply/application-fee
+                    :json [["stripe" {:amount (* 100 apply/application-fee)
                                       :key    (config/stripe-public-key config)}]
                            ["referral_sources" referral/sources]]
                     :css-bundles ["apply.css"]

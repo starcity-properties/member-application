@@ -1,8 +1,7 @@
 (ns starcity.components.service
   (:require [ant-ui.core :as a]
             [toolbelt.core :as tb]
-            [cljs.spec :as s]
-            [plumbing.core :as plumbing]))
+            [cljs.spec.alpha :as s]))
 
 (defn- price-range [prices]
   (str (apply min prices) "-" (apply max prices)))

@@ -14,7 +14,6 @@
              [prime :as optimus]
              [strategies :as strategies]]
             [org.httpkit.server :as httpkit]
-            [plumbing.core :as plumbing]
             [ring.middleware
              [content-type :refer [wrap-content-type]]
              [format :refer [wrap-restful-format]]
@@ -25,6 +24,7 @@
              [params :refer [wrap-params]]
              [resource :refer [wrap-resource]]
              [session :refer [wrap-session]]]
+            [toolbelt.core :as tb]
             [ring.middleware.session.datomic :refer [datomic-store session->entity]]
             [taoensso.timbre :as timbre]
             [ring.util.response :as response]))
@@ -37,7 +37,7 @@
                   (string/starts-with? uri "/assets")
                   (string/starts-with? uri "/bundles"))
       (timbre/info :web/request
-                   (plumbing/assoc-when
+                   (tb/assoc-when
                     {:uri         uri
                      :method      request-method
                      :remote-addr remote-addr}

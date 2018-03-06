@@ -7,7 +7,7 @@
             [apply.fx]
             [re-frame.core :refer [dispatch-sync]]
             [reagent.core :as reagent]
-            [clojure.spec.test :as stest]))
+            [clojure.spec.test.alpha :as stest]))
 
 ;; =============================================================================
 ;; Config

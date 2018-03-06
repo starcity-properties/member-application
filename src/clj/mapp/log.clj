@@ -1,6 +1,6 @@
 (ns mapp.log
   (:require [cheshire.core :as json]
-            [clojure.spec :as s]
+            [clojure.spec.alpha :as s]
             [mount.core :as mount :refer [defstate]]
             [mapp.config :as config :refer [config]]
             [taoensso.timbre :as timbre]

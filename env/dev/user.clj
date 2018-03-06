@@ -1,21 +1,14 @@
 (ns user
   (:require [clojure.core.async :as a]
-            [clojure.spec.test :as stest]
+            [clojure.spec.test.alpha :as stest]
             [clojure.tools.namespace.repl :refer [refresh]]
             [datomic.api :as d]
             [figwheel-sidecar.repl-api :as ra]
-            [mailer.core :as mailer]
             [mapp.config :as config :refer [config]]
             [mapp.datomic :refer [conn]]
-            [mapp.log]
-            [mapp.server]
+            [mapp.core]
             [mount.core :as mount :refer [defstate]]
-            [reactor.deps :as deps]
             [reactor.reactor :as reactor]
-            [reactor.services.community-safety :as cs]
-            [reactor.services.slack :as slack]
-            [reactor.services.weebly :as weebly]
-            [ribbon.core :as ribbon]
             [taoensso.timbre :as timbre]))
 
 (timbre/refer-timbre)
@@ -26,71 +19,45 @@
 ;; =============================================================================
 
 
-(defstate community-safety
-  :start (reify cs/ICommunitySafety
-           (background-check [this user-id first-name last-name email dob]
-             (cs/background-check this user-id first-name last-name email dob {}))
-           (background-check [this user-id first-name last-name email dob opts]
-             (let [c (a/chan 1)]
-               (a/put! c {:body {} :headers {:location "http://localhost"}})
-               c))))
+(defn mailgun-domain
+  [config]
+  (get-in config [:mailgun :domain]))
 
 
-(defstate mailer
-  :start (mailer/mailgun (get-in config [:mailgun :api-key])
-                         (get-in config [:mailgun :domain])
-                         {:sender  (get-in config [:mailgun :sender])
-                          :send-to "josh@starcity.com"}))
+(defn mailgun-sender
+  [config]
+  (get-in config [:mailgun :sender]))
 
 
-(defstate slack
-  :start (slack/slack (get-in config [:secrets :slack :webhook])
-                      (get-in config [:slack :username])
-                      "#debug"))
+(defn mailgun-api-key
+  [config]
+  (get-in config [:mailgun :api-key]))
 
 
-(defstate weebly
-  :start (reify weebly/WeeblyPromote
-           (subscribe! [this email]
-             (let [c (a/chan 1)]
-               (a/put! c {:body {:email email}})
-               c))))
+(defn slack-webhook-url
+  [config]
+  (get-in config [:secrets :slack :webhook]))
 
 
-(defstate stripe
-  :start (ribbon/stripe-connection (config/stripe-secret-key config)))
-
-
-(defstate ^:private tx-report-ch
-  :start (a/chan (a/sliding-buffer 256))
-  :stop (a/close! tx-report-ch))
-
-
-(defstate ^:private tx-report-queue
-  :start (a/thread
-           (try
-             (let [queue (d/tx-report-queue conn)]
-               (while true
-                 (let [report (.take queue)]
-                   (a/>!! tx-report-ch report))))
-             (catch Exception e
-               (timbre/error e "TX-REPORT-TAKE exception")
-               (throw e))))
-  :stop (d/remove-tx-report-queue conn))
-
-
-(defstate mult :start (a/mult tx-report-ch))
+(defn slack-username
+  [config]
+  (get-in config [:slack :username]))
 
 
 (defstate reactor
-  :start (let [deps (deps/deps community-safety
-                               mailer
-                               slack
-                               weebly
-                               stripe
-                               (config/root-domain config))]
-           (reactor/start! conn mult deps))
-  :stop (reactor/stop! mult reactor))
+  :start (let [conf {:mailer             {:api-key (mailgun-api-key config)
+                                          :domain  (mailgun-domain config)
+                                          :sender  (mailgun-sender config)
+                                          :send-to "josh@starcity.com"}
+                     :slack              {:webhook-url (slack-webhook-url config)
+                                          :username    (slack-username config)
+                                          :channel     "#debug"}
+                     :stripe             {:secret-key (config/stripe-secret-key config)}
+                     :public-hostname    "http://localhost:8080"
+                     :dashboard-hostname "http://localhost:8082"}
+               chan (a/chan (a/sliding-buffer 512))]
+           (reactor/start! conn chan conf))
+  :stop (reactor/stop! reactor))
 
 
 ;; =============================================================================
