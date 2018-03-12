@@ -213,7 +213,7 @@
        [:p "We want to ensure that individuals interested in joining our
        communities are able to stay connected to other members without hiccups."]
        [:p "You can verify your income by providing your most recent pay stub,
-       last year's W2, or your bank statements for the past three months."]
+       an offer letter or your bank statements for the past three months."]
        [:div.form-container
         [:div.form-group
          [:label.label
