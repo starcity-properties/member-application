@@ -64,8 +64,6 @@
 (defn header
   [title]
   [:header
-   [:figure.image.is-64x64
-    [:a {:on-click #(dispatch [:prompt.help/toggle])} (advisor-image true)]]
    [:h3.prompt-title.title.is-4 title]])
 
 (defn content [content]
