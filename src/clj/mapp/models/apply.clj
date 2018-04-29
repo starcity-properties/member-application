@@ -487,28 +487,13 @@
   [conn token account & [referral]]
   (let [app      (application/by-account (d/db conn) account)
         customer (customer/create! teller (account/email account)
-                                   {:account     account
-                                    :external-id (account/email account)
-                                    :source      token})]
-    (payment/create! teller customer application-fee :payment.type/application-fee
-                     {:charge-now true})
+                                   {:account account
+                                    :source  token})]
+    (payment/create! customer application-fee :payment.type/application-fee
+                     {:source (first (customer/sources customer :payment-source.type/card))})
     @(d/transact conn (tb/conj-when
                        (application/submit app)
                        (when-some [r referral] (referral/apply r account))))))
-
-
-(comment
-
-  (let [customer (customer/by-id teller "test@test.com")]
-    (customer/fetch-source teller customer :payment.type/application-fee))
-
-
-  (map d/touch (:payment/_customer (d/entity (d/db mapp.datomic/conn) 285873023223129)))
-
-
-
-  )
-
 
 (s/fdef submit!
         :args (s/cat :conn td/conn?

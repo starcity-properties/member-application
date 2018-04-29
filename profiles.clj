@@ -2,7 +2,7 @@
        :plugins      [[lein-figwheel "0.5.11" :exclusions [org.clojure/clojure org.clojure/core.async]]
                       [lein-cooper "1.2.2" :exclusions [org.clojure/clojure]]]
        :dependencies [[figwheel-sidecar "0.5.11"]
-                      [starcity/reactor "1.8.0-SNAPSHOT" :exclusions [starcity/toolbelt-datomic]]
+                      [starcity/reactor "1.9.0-SNAPSHOT"]
                       [binaryage/devtools "0.9.2"]]
        :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 

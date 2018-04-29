@@ -7,6 +7,7 @@
             [mapp.config :as config :refer [config]]
             [mapp.datomic :refer [conn]]
             [mapp.core]
+            [mapp.teller :refer [teller]]
             [mount.core :as mount :refer [defstate]]
             [reactor.reactor :as reactor]
             [taoensso.timbre :as timbre]))
@@ -52,11 +53,10 @@
                      :slack              {:webhook-url (slack-webhook-url config)
                                           :username    (slack-username config)
                                           :channel     "#debug"}
-                     :stripe             {:secret-key (config/stripe-secret-key config)}
                      :public-hostname    "http://localhost:8080"
                      :dashboard-hostname "http://localhost:8082"}
                chan (a/chan (a/sliding-buffer 512))]
-           (reactor/start! conn chan conf))
+           (reactor/start! conn teller chan conf))
   :stop (reactor/stop! reactor))
 
 

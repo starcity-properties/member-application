@@ -37,7 +37,7 @@
                  [cljsjs/react-dom "15.4.2-2"]
                  ;; DB
                  [com.datomic/datomic-pro "0.9.5544" :exclusions [com.google.guava/guava]]
-                 [starcity/blueprints "2.3.0"
+                 [starcity/blueprints "2.5.0-SNAPSHOT"
                   :exclusions [com.datomic/datomic-free
                                com.andrewmcveigh/cljs-time
                                com.google.guava/guava]]
@@ -54,7 +54,7 @@
                  [starcity/toolbelt-async "0.4.0"]
                  [starcity/toolbelt-core "0.4.0"]
                  [starcity/toolbelt-date "0.3.0"]
-                 [starcity/toolbelt-datomic "0.4.0-SNAPSHOT"]
+                 [starcity/toolbelt-datomic "0.5.0"]
                  [me.raynes/fs "1.4.6"]]
 
   :plugins [[lein-cljsbuild "1.1.4"]
