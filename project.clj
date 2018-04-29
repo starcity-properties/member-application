@@ -37,14 +37,14 @@
                  [cljsjs/react-dom "15.4.2-2"]
                  ;; DB
                  [com.datomic/datomic-pro "0.9.5544" :exclusions [com.google.guava/guava]]
-                 [starcity/blueprints "2.5.0-SNAPSHOT"
+                 [starcity/blueprints "2.5.0"
                   :exclusions [com.datomic/datomic-free
                                com.andrewmcveigh/cljs-time
                                com.google.guava/guava]]
                  [org.postgresql/postgresql "9.4.1211"]
                  [io.rkn/conformity "0.4.0"]
                  ;; Util
-                 [starcity/teller "0.1.0-SNAPSHOT"]
+                 [starcity/teller "1.0.0"]
                  [aero "1.1.2"]
                  [bouncer "1.0.1"]
                  [cheshire "5.6.3"]
@@ -52,7 +52,7 @@
                  [mount "0.1.11"]
                  [com.taoensso/timbre "4.10.0"]
                  [starcity/toolbelt-async "0.4.0"]
-                 [starcity/toolbelt-core "0.4.0"]
+                 [starcity/toolbelt-core "0.5.0"]
                  [starcity/toolbelt-date "0.3.0"]
                  [starcity/toolbelt-datomic "0.5.0"]
                  [me.raynes/fs "1.4.6"]]
