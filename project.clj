@@ -1,4 +1,4 @@
-(defproject mapp "1.3.0-SNAPSHOT"
+(defproject mapp "1.3.0"
   :description "Starcity's Member Application"
   :url "http://apply.starcity.com"
   :license {:name "Eclipse Public License"
